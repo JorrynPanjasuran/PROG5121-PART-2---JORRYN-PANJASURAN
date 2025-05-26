@@ -1,0 +1,34 @@
+name: Build and Test with Maven
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17 with Maven caching
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Build and test with Maven
+      run: mvn --batch-mode --update-snapshots verify
+
+    - name: Package and upload JAR artifact
+      run: |
+        mkdir staging && cp target/*.jar staging
+    - uses: actions/upload-artifact@v4
+      with:
+        name: Maven Package
+        path: staging
